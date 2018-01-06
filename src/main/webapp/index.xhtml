@@ -7,10 +7,85 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui">
 
-	<!-- Vi petar in en tom <h:head> så att JSF/Primefaces kan skjuta in javascript och css. -->
-	<h:head></h:head>
-	<!-- För att AJAX ska funka måste JSF-prylar ligga i en <form>. -->
-	<h:body><h:form>
+<!-- Vi petar in en tom <h:head> så att JSF/Primefaces kan skjuta in javascript och css. -->
+<h:head>
+	<h:outputStylesheet>
+td.ui-datatable-subtable-header:empty {
+	display: none
+}
+		</h:outputStylesheet>
+</h:head>
+<!-- För att AJAX ska funka måste JSF-prylar ligga i en <form>. -->
+<h:body>
+	<h:form>
 
-	</h:form></h:body>
+		<p:dataTable value="#{sportsingBean.matches}" var="match" id="matchTable">
+			<p:column headerText="Sport">
+				<f:facet name="footer" style="text-align: left;">
+					<p:commandLink value="+" oncomplete="PF('newMatchDialog').show()" />
+				</f:facet>
+				<h:outputText value="#{match.sport}" />
+			</p:column>
+			<p:column headerText="Sportsare">
+				<p:dataTable value="#{match.contenders}" var="sportser"
+					sortBy="#{sportser.place}">
+					<p:column headerText="Lag">
+						<h:outputText value="#{sportser.name}" />
+					</p:column>
+					<p:column headerText="Placering">
+						<h:outputText value="#{sportser.place}" />
+					</p:column>
+					<p:column headerText="Poäng">
+						<h:outputText value="#{sportser.score}" />
+					</p:column>
+				</p:dataTable>
+			</p:column>
+			<p:column width="40">
+				<p:commandButton action="#{sportsingBean.deleteMatch(match)}" value="-" update="matchTable" style="background-color: red; color: white;"/>
+			</p:column>
+		</p:dataTable>
+
+		<p:dialog dynamic="true" id="newMatchDialog" widgetVar="newMatchDialog" width="350">
+			<p:outputPanel>
+				<h:outputLabel for="sport" value="Sport: " />
+				<p:inputText id="sport" label="sport" value="#{sportsingBean.newMatch.sport}" />
+				<h:outputText value="Resultat: " />
+				<p:dataTable id="contenders" value="#{sportsingBean.newMatch.contenders}" var="sportser" editable="true" editMode="cell">
+					<p:column headerText="Lag">
+						<p:cellEditor>
+							<f:facet name="output">
+								<h:outputText value="#{sportser.name}" />
+							</f:facet>
+							<f:facet name="input">
+								<p:inputText value="#{sportser.name}" />
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+					<p:column headerText="Placering">
+						<p:cellEditor>
+							<f:facet name="output">
+								<h:outputText value="#{sportser.place}" />
+							</f:facet>
+							<f:facet name="input">
+								<p:inputText value="#{sportser.place}" />
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+					<p:column headerText="Poäng">
+						<p:cellEditor>
+							<f:facet name="output">
+								<h:outputText value="#{sportser.score}" />
+							</f:facet>
+							<f:facet name="input">
+								<p:inputText value="#{sportser.score}" />
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+				</p:dataTable>
+				<p:commandButton action="#{sportsingBean.saveNewMatch}" value="Spara" update="matchTable" onsuccess="PF('newMatchDialog').hide()"/>
+			</p:outputPanel>
+		</p:dialog>
+
+	</h:form>
+</h:body>
 </html>
